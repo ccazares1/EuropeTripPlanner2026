@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Europe Family Trip · Aug 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #faf9f7;
+      --surface: #ffffff;
+      --surface2: #f3f1ee;
+      --border: rgba(0,0,0,0.1);
+      --border-med: rgba(0,0,0,0.18);
+      --text: #1a1814;
+      --text2: #6b6560;
+      --text3: #9c968f;
+      --accent-rome: #C4511E;
+      --accent-lucca: #1D9E75;
+      --accent-paris: #2B7FD4;
+      --accent-barcelona: #C44070;
+      --green: #1D9E75;
+      --red: #D94040;
+      --radius: 14px;
+      --radius-sm: 8px;
+      --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #161412;
+        --surface: #1e1c19;
+        --surface2: #252320;
+        --border: rgba(255,255,255,0.09);
+        --border-med: rgba(255,255,255,0.16);
+        --text: #f0ece6;
+        --text2: #9c958d;
+        --text3: #6b655e;
+        --shadow: 0 1px 3px rgba(0,0,0,0.3), 0 4px 12px rgba(0,0,0,0.2);
+      }
+    }
+
+    html { font-size: 16px; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100dvh;
+      padding-bottom: 3rem;
+    }
+
+    /* HEADER */
+    .header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 1rem 0.75rem;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .header-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; }
+    .header-title { font-family: 'DM Serif Display', serif; font-size: 22px; letter-spacing: -0.3px; color: var(--text); }
+    .header-dates { font-size: 12px; color: var(--text2); margin-top: 1px; }
+
+    .sync-pill {
+      font-size: 11px; font-weight: 500; padding: 4px 10px; border-radius: 99px;
+      background: #e8f7f1; color: #1D9E75; border: 1px solid rgba(29,158,117,0.25);
+      cursor: pointer; white-space: nowrap; transition: opacity 0.2s;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .sync-pill.saving { background: #fef7e8; color: #b07d1a; border-color: rgba(176,125,26,0.25); }
+    .sync-pill.error { background: #fdeaea; color: #c03030; border-color: rgba(192,48,48,0.25); }
+
+    @media (prefers-color-scheme: dark) {
+      .sync-pill { background: rgba(29,158,117,0.15); border-color: rgba(29,158,117,0.3); }
+      .sync-pill.saving { background: rgba(176,125,26,0.15); border-color: rgba(176,125,26,0.3); }
+      .sync-pill.error { background: rgba(192,48,48,0.15); border-color: rgba(192,48,48,0.3); }
+    }
+
+    /* BUDGET STRIP */
+    .budget-wrap { padding: 0.75rem 1rem 0; }
+    .budget-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+    .bcard { background: var(--surface2); border-radius: var(--radius-sm); padding: 10px 12px; }
+    .bcard-label { font-size: 11px; color: var(--text3); font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; }
+    .bcard-val { font-size: 22px; font-weight: 600; color: var(--text); line-height: 1.2; margin: 2px 0; }
+    .bcard-sub { font-size: 11px; color: var(--text2); }
+
+    .progress-wrap { margin-bottom: 4px; }
+    .progress-row { display: flex; justify-content: space-between; font-size: 11px; color: var(--text3); margin-bottom: 5px; }
+    .progress-track { height: 5px; background: var(--surface2); border-radius: 99px; overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: 99px; background: var(--green); transition: width 0.5s ease; }
+    .progress-fill.over { background: var(--red); }
+
+    /* ROUTE BAR */
+    .route-bar {
+      display: flex; align-items: center; gap: 4px;
+      padding: 0 1rem; overflow-x: auto; scrollbar-width: none;
+      padding-bottom: 2px;
+    }
+    .route-bar::-webkit-scrollbar { display: none; }
+    .route-city {
+      font-size: 12px; font-weight: 500; padding: 3px 10px; border-radius: 99px;
+      white-space: nowrap; border: 1px solid var(--border); color: var(--text2);
+      background: var(--surface); cursor: pointer; transition: all 0.15s;
+    }
+    .route-city.active { color: white; border-color: transparent; }
+    .route-arrow { font-size: 10px; color: var(--text3); flex-shrink: 0; }
+
+    /* CITIES */
+    .cities { padding: 1rem 1rem 0; display: flex; flex-direction: column; gap: 12px; }
+
+    .city-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .city-header {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 16px; cursor: pointer;
+      user-select: none; -webkit-user-select: none;
+    }
+    .city-color-bar { width: 4px; height: 36px; border-radius: 99px; flex-shrink: 0; }
+    .city-header-info { flex: 1; min-width: 0; }
+    .city-header-name { font-size: 16px; font-weight: 600; color: var(--text); }
+    .city-header-meta { font-size: 12px; color: var(--text2); margin-top: 1px; }
+    .city-header-right { display: flex; align-items: center; gap: 8px; }
+    .city-total { font-size: 13px; font-weight: 500; color: var(--text2); }
+    .city-chevron { font-size: 16px; color: var(--text3); transition: transform 0.22s ease; }
+    .city-chevron.open { transform: rotate(90deg); }
+
+    .city-body { display: none; }
+    .city-body.open { display: block; }
+
+    /* TRANSPORT ROW */
+    .transport-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 16px; font-size: 12px; color: var(--text2);
+      background: var(--surface2); border-top: 1px solid var(--border);
+    }
+    .transport-icon { font-size: 15px; flex-shrink: 0; }
+
+    /* DAY ROWS */
+    .day-row { border-top: 1px solid var(--border); }
+    .day-header {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 16px; cursor: pointer;
+      user-select: none; -webkit-user-select: none;
+    }
+    .day-date { font-size: 11px; font-weight: 600; color: var(--text3); min-width: 38px; text-transform: uppercase; letter-spacing: 0.03em; }
+    .day-label { font-size: 14px; color: var(--text); flex: 1; min-width: 0; }
+    .day-cost { font-size: 12px; color: var(--text2); white-space: nowrap; }
+    .day-actions { display: flex; gap: 4px; align-items: center; }
+    .day-action-btn {
+      width: 26px; height: 26px; border: 1px solid var(--border);
+      border-radius: 6px; background: var(--surface2); color: var(--text2);
+      cursor: pointer; font-size: 13px; display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s, color 0.15s; flex-shrink: 0;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .day-action-btn:hover { background: var(--surface); color: var(--text); }
+    .day-action-btn.del:hover { background: #fdeaea; color: var(--red); border-color: rgba(192,48,48,0.3); }
+    .day-action-btn:disabled { opacity: 0.28; cursor: default; }
+    .day-chevron { font-size: 14px; color: var(--text3); transition: transform 0.2s; flex-shrink: 0; }
+    .day-chevron.open { transform: rotate(90deg); }
+
+    /* DAY DETAIL */
+    .day-detail { background: var(--surface2); border-top: 1px solid var(--border); padding: 14px 16px; }
+    .detail-section { margin-bottom: 14px; }
+    .detail-section:last-child { margin-bottom: 0; }
+    .detail-label {
+      font-size: 10px; font-weight: 600; color: var(--text3);
+      text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 6px;
+    }
+    .detail-item {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      gap: 10px; font-size: 13px; color: var(--text); margin-bottom: 4px; line-height: 1.4;
+    }
+    .detail-item-name { flex: 1; }
+    .detail-item-note { font-size: 11px; color: var(--text3); }
+    .detail-item-cost {
+      font-size: 12px; color: var(--text2); white-space: nowrap;
+      border-bottom: 1px dashed var(--border-med); cursor: pointer;
+      padding-bottom: 1px; transition: color 0.15s;
+    }
+    .detail-item-cost:hover { color: var(--text); }
+    .detail-item-cost.readonly { border-bottom: none; cursor: default; }
+
+    .add-item-btn {
+      font-size: 12px; color: var(--accent-paris); background: none; border: none;
+      cursor: pointer; padding: 2px 0; font-family: 'DM Sans', sans-serif;
+      text-decoration: underline; text-underline-offset: 2px; margin-top: 2px;
+    }
+
+    .note-area {
+      width: 100%; font-size: 13px; color: var(--text2);
+      border: 1px solid var(--border); border-radius: var(--radius-sm);
+      padding: 8px 10px; background: var(--surface); resize: none;
+      min-height: 52px; font-family: 'DM Sans', sans-serif; line-height: 1.5;
+      transition: border-color 0.15s;
+    }
+    .note-area:focus { outline: none; border-color: var(--border-med); }
+    .note-area[readonly] { cursor: default; background: transparent; border-color: transparent; padding-left: 0; }
+
+    /* CITY FOOTER */
+    .city-footer { border-top: 1px solid var(--border); padding: 10px 16px; display: flex; justify-content: flex-end; }
+    .add-day-btn {
+      font-size: 12px; font-weight: 500; padding: 6px 14px;
+      border: 1px solid var(--border-med); border-radius: 99px;
+      background: var(--surface); color: var(--text2); cursor: pointer;
+      font-family: 'DM Sans', sans-serif; transition: all 0.15s;
+    }
+    .add-day-btn:hover { background: var(--surface2); color: var(--text); }
+
+    /* SHARE */
+    .share-box {
+      margin: 1rem 1rem 0;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 14px 16px;
+      box-shadow: var(--shadow);
+    }
+    .share-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 8px; }
+    .share-link-row {
+      display: flex; gap: 8px; align-items: center;
+      background: var(--surface2); border-radius: var(--radius-sm);
+      padding: 8px 10px; font-size: 12px; color: var(--text2);
+      border: 1px solid var(--border); margin-bottom: 8px;
+    }
+    .share-link-text { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: monospace; font-size: 11px; }
+    .copy-btn {
+      font-size: 11px; font-weight: 500; padding: 4px 10px;
+      border: 1px solid var(--border-med); border-radius: 6px;
+      background: var(--surface); color: var(--text); cursor: pointer;
+      font-family: 'DM Sans', sans-serif; white-space: nowrap; transition: all 0.15s;
+    }
+    .copy-btn:hover { background: var(--surface2); }
+    .share-note { font-size: 11px; color: var(--text3); line-height: 1.5; }
+
+    /* VIEWER BAR */
+    .viewer-bar {
+      background: #e8f7f1; color: #1D9E75; font-size: 12px; font-weight: 500;
+      padding: 8px 1rem; text-align: center; border-bottom: 1px solid rgba(29,158,117,0.2);
+      display: none;
+    }
+    @media (prefers-color-scheme: dark) {
+      .viewer-bar { background: rgba(29,158,117,0.12); border-color: rgba(29,158,117,0.2); }
+    }
+
+    /* MODAL */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+      display: flex; align-items: flex-end; justify-content: center;
+      z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.2s;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+    .modal {
+      background: var(--surface); width: 100%; max-width: 480px;
+      border-radius: var(--radius) var(--radius) 0 0;
+      padding: 20px 20px 32px;
+      transform: translateY(24px); transition: transform 0.25s ease;
+    }
+    .modal-overlay.open .modal { transform: translateY(0); }
+    .modal-title { font-size: 16px; font-weight: 600; margin-bottom: 16px; }
+    .modal-field { margin-bottom: 12px; }
+    .modal-label { font-size: 12px; color: var(--text2); margin-bottom: 4px; display: block; font-weight: 500; }
+    .modal-input {
+      width: 100%; font-size: 14px; padding: 10px 12px;
+      border: 1px solid var(--border-med); border-radius: var(--radius-sm);
+      background: var(--surface2); color: var(--text);
+      font-family: 'DM Sans', sans-serif; transition: border-color 0.15s;
+    }
+    .modal-input:focus { outline: none; border-color: var(--accent-paris); }
+    .modal-actions { display: flex; gap: 8px; margin-top: 16px; }
+    .modal-btn {
+      flex: 1; padding: 11px; border-radius: var(--radius-sm); font-size: 14px;
+      font-weight: 500; cursor: pointer; border: 1px solid var(--border-med);
+      font-family: 'DM Sans', sans-serif; transition: all 0.15s;
+    }
+    .modal-btn.primary { background: var(--text); color: var(--bg); border-color: var(--text); }
+    .modal-btn.primary:hover { opacity: 0.85; }
+    .modal-btn.secondary { background: var(--surface2); color: var(--text); }
+    .modal-btn.secondary:hover { background: var(--surface); }
+  </style>
+</head>
+<body>
+
+<div class="viewer-bar" id="viewer-bar">Viewing trip plan (read-only) · Updates sync automatically every 15s</div>
+
+<div class="header">
+  <div class="header-top">
+    <div>
+      <div class="header-title">Europe 2026 ✈</div>
+      <div class="header-dates">Aug 8–21 · Fort Worth family · 4 cities</div>
+    </div>
+    <div class="sync-pill" id="sync-pill" onclick="forceSave()">Synced</div>
+  </div>
+
+  <div class="budget-wrap">
+    <div class="budget-cards">
+      <div class="bcard">
+        <div class="bcard-label">Total budget</div>
+        <div class="bcard-val" id="b-total">$0</div>
+        <div class="bcard-sub">4 travelers</div>
+      </div>
+      <div class="bcard">
+        <div class="bcard-label">Planned spend</div>
+        <div class="bcard-val" id="b-spent">$0</div>
+        <div class="bcard-sub" id="b-remain">$0 remaining</div>
+      </div>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-row"><span>Budget used</span><span id="b-pct">0%</span></div>
+      <div class="progress-track"><div class="progress-fill" id="b-bar" style="width:0%"></div></div>
+    </div>
+  </div>
+
+  <div class="route-bar" id="route-bar"></div>
+</div>
+
+<div class="cities" id="cities-container"></div>
+
+<div class="share-box" id="share-box">
+  <div class="share-title">Share with family</div>
+  <div class="share-link-row">
+    <span class="share-link-text" id="share-url">Loading...</span>
+    <button class="copy-btn" onclick="copyLink()">Copy link</button>
+  </div>
+  <div class="share-note">Send this link to family — they'll see the plan live on any device. Your edits sync to them automatically.</div>
+</div>
+
+<!-- Modal for adding days / activities -->
+<div class="modal-overlay" id="modal" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-title" id="modal-title">Add day</div>
+    <div id="modal-fields"></div>
+    <div class="modal-actions">
+      <button class="modal-btn secondary" onclick="closeModal()">Cancel</button>
+      <button class="modal-btn primary" id="modal-confirm" onclick="confirmModal()">Add</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'europe_trip_2026_standalone_v1';
+const TOTAL_BUDGET = 18000;
+
+const CITIES = [
+  { id: 'rome',      name: 'Rome',      color: '#C4511E', transport_out: { type: 'train', label: 'Train to Lucca · ~3.5 hrs via Firenze' } },
+  { id: 'lucca',     name: 'Lucca',     color: '#1D9E75', transport_out: { type: 'train', label: 'Train to Paris · ~7 hrs via Milano (high-speed)' } },
+  { id: 'paris',     name: 'Paris',     color: '#2B7FD4', transport_out: { type: 'train', label: 'Train to Barcelona · ~6.5 hrs TGV via Narbonne' } },
+  { id: 'barcelona', name: 'Barcelona', color: '#C44070', transport_out: null }
+];
+
+const DEFAULT_STATE = {
+  rome: [
+    { id:'r1', date:'Aug 8',  label:'Arrival + Trastevere',       hotel:{ name:'Hotel Campo de Fiori', cost:280 }, flights:[{ name:'FTW → FCO (American via JFK)', cost:4200, note:'4 tickets' }], activities:[{ name:'Evening walk Trastevere', cost:0 },{ name:'Dinner Ristorante Da Enzo', cost:120 }], notes:'' },
+    { id:'r2', date:'Aug 9',  label:'Vatican & Castel Sant\'Angelo', hotel:{ name:'Hotel Campo de Fiori', cost:280 }, activities:[{ name:'Vatican Museums + Sistine Chapel', cost:80 },{ name:'St. Peter\'s Basilica', cost:0 },{ name:'Castel Sant\'Angelo', cost:60 },{ name:'Gelato + lunch', cost:60 }], notes:'Book Vatican tickets in advance!' },
+    { id:'r3', date:'Aug 10', label:'Colosseum & Roman Forum',    hotel:{ name:'Hotel Campo de Fiori', cost:280 }, activities:[{ name:'Colosseum + Roman Forum', cost:80 },{ name:'Palatine Hill', cost:0 },{ name:'Trevi Fountain', cost:0 },{ name:'Dinner near Piazza Navona', cost:140 }], notes:'' },
+    { id:'r4', date:'Aug 11', label:'Borghese & departure prep',  hotel:{ name:'Hotel Campo de Fiori', cost:280 }, activities:[{ name:'Villa Borghese Gallery', cost:60 },{ name:'Piazza del Popolo', cost:0 },{ name:'Souvenir shopping', cost:100 }], notes:'Pack light — train tomorrow morning' }
+  ],
+  lucca: [
+    { id:'l1', date:'Aug 12', label:'Arrival + City Walls',   hotel:{ name:'Palazzo Alexander', cost:220 }, activities:[{ name:'Bike rental (4 bikes)', cost:60 },{ name:'Cycle the medieval walls', cost:0 },{ name:'Dinner Buca di Sant\'Antonio', cost:120 }], notes:'Lucca is tiny & perfect for kids' },
+    { id:'l2', date:'Aug 13', label:'Day trip to Pisa',       hotel:{ name:'Palazzo Alexander', cost:220 }, activities:[{ name:'Train to Pisa (return)', cost:24 },{ name:'Leaning Tower tickets', cost:80 },{ name:'Cathedral + Baptistry', cost:40 },{ name:'Lunch in Pisa', cost:80 }], notes:'' }
+  ],
+  paris: [
+    { id:'p1', date:'Aug 14', label:'Arrival + Marais',       hotel:{ name:'Hôtel Caron de Beaumarchais', cost:340 }, activities:[{ name:'Explore Le Marais', cost:0 },{ name:'Centre Pompidou', cost:0 },{ name:'Dinner bistro', cost:160 }], notes:'' },
+    { id:'p2', date:'Aug 15', label:'Eiffel Tower & Seine',   hotel:{ name:'Hôtel Caron de Beaumarchais', cost:340 }, activities:[{ name:'Eiffel Tower summit (4 tickets)', cost:120 },{ name:'Seine river cruise', cost:80 },{ name:'Champ de Mars picnic', cost:50 }], notes:'Book Eiffel tickets now — sells out weeks ahead' },
+    { id:'p3', date:'Aug 16', label:'Louvre & Montmartre',    hotel:{ name:'Hôtel Caron de Beaumarchais', cost:340 }, activities:[{ name:'Louvre tickets (4)', cost:80 },{ name:'Montmartre + Sacré-Cœur', cost:0 },{ name:'Dinner Rue des Abbesses', cost:180 }], notes:'' },
+    { id:'p4', date:'Aug 17', label:'Versailles day trip',    hotel:{ name:'Hôtel Caron de Beaumarchais', cost:340 }, activities:[{ name:'RER C to Versailles', cost:32 },{ name:'Palace + Gardens tickets (4)', cost:160 },{ name:'Lunch in gardens', cost:100 }], notes:'' }
+  ],
+  barcelona: [
+    { id:'b1', date:'Aug 18', label:'Arrival + Gothic Quarter', hotel:{ name:'Hotel Arts Barcelona', cost:420 }, activities:[{ name:'Gothic Quarter walk', cost:0 },{ name:'Mercat de la Boqueria', cost:60 },{ name:'Tapas dinner El Xampanyet', cost:140 }], notes:'' },
+    { id:'b2', date:'Aug 19', label:'Gaudí Day',               hotel:{ name:'Hotel Arts Barcelona', cost:420 }, activities:[{ name:'Sagrada Família tickets (4)', cost:140 },{ name:'Park Güell tickets (4)', cost:60 },{ name:'Dinner Barceloneta', cost:160 }], notes:'Book Sagrada Família NOW — always sold out' },
+    { id:'b3', date:'Aug 20', label:'Beach & Montjuïc',        hotel:{ name:'Hotel Arts Barcelona', cost:420 }, activities:[{ name:'Barceloneta Beach morning', cost:0 },{ name:'Montjuïc cable car', cost:60 },{ name:'Farewell dinner', cost:200 }], notes:'Last full day — make it count!' },
+    { id:'b4', date:'Aug 21', label:'Departure day',           hotel:{ name:'Hotel Arts Barcelona', cost:420 }, flights:[{ name:'BCN → FTW (Iberia/AA via MAD)', cost:3800, note:'4 tickets' }], activities:[{ name:'Morning coffee + pastries', cost:30 }], notes:'Flight departs afternoon — check out by noon' }
+  ]
+};
+
+let state = null;
+let openCities = { rome: true };
+let openDays = {};
+let saveTimer = null;
+let isViewer = false;
+let lastHash = '';
+let modalCallback = null;
+
+// ── STORAGE ──────────────────────────────────────────────
+const DB_NAME = 'EuropeTripDB', DB_VER = 1, STORE = 'kv';
+let db = null;
+
+function openDB() {
+  return new Promise((res, rej) => {
+    const req = indexedDB.open(DB_NAME, DB_VER);
+    req.onupgradeneeded = e => e.target.result.createObjectStore(STORE);
+    req.onsuccess = e => { db = e.target.result; res(db); };
+    req.onerror = () => rej(req.error);
+  });
+}
+
+function dbGet(key) {
+  return new Promise((res, rej) => {
+    const tx = db.transaction(STORE, 'readonly');
+    const req = tx.objectStore(STORE).get(key);
+    req.onsuccess = () => res(req.result);
+    req.onerror = () => rej(req.error);
+  });
+}
+
+function dbSet(key, val) {
+  return new Promise((res, rej) => {
+    const tx = db.transaction(STORE, 'readwrite');
+    const req = tx.objectStore(STORE).put(val, key);
+    req.onsuccess = () => res();
+    req.onerror = () => rej(req.error);
+  });
+}
+
+// ── HASH ─────────────────────────────────────────────────
+function hashOf(s) {
+  const str = JSON.stringify(s);
+  let h = 0;
+  for (let i = 0; i < str.length; i++) h = (Math.imul(31, h) + str.charCodeAt(i)) | 0;
+  return str.length + '_' + h;
+}
+
+// ── LOAD / SAVE ───────────────────────────────────────────
+async function loadState() {
+  try {
+    const raw = await dbGet(STORAGE_KEY);
+    if (raw) { state = JSON.parse(raw); lastHash = hashOf(state); return; }
+  } catch(e) {}
+  state = JSON.parse(JSON.stringify(DEFAULT_STATE));
+  lastHash = hashOf(state);
+}
+
+async function saveState() {
+  if (isViewer) return;
+  try {
+    setSyncPill('saving');
+    await dbSet(STORAGE_KEY, JSON.stringify(state));
+    lastHash = hashOf(state);
+    setSyncPill('synced');
+  } catch(e) { setSyncPill('error'); }
+}
+
+function scheduleSave() {
+  if (isViewer) return;
+  clearTimeout(saveTimer);
+  setSyncPill('saving');
+  saveTimer = setTimeout(saveState, 1400);
+}
+
+function forceSave() { clearTimeout(saveTimer); saveState(); }
+
+function setSyncPill(s) {
+  const el = document.getElementById('sync-pill');
+  el.className = 'sync-pill' + (s === 'saving' ? ' saving' : s === 'error' ? ' error' : '');
+  el.textContent = s === 'saving' ? 'Saving…' : s === 'error' ? 'Sync error' : 'Synced';
+}
+
+// Viewer polling via BroadcastChannel (same-origin tabs) + localStorage timestamp
+const bc = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('europe_trip') : null;
+if (bc) {
+  bc.onmessage = async () => {
+    if (!isViewer) return;
+    const raw = await dbGet(STORAGE_KEY);
+    if (raw) { const parsed = JSON.parse(raw); const h = hashOf(parsed); if (h !== lastHash) { state = parsed; lastHash = h; renderAll(); } }
+  };
+}
+
+// ── MATH ─────────────────────────────────────────────────
+function fmt(n) { return '$' + Math.round(n).toLocaleString(); }
+
+function calcDayTotal(day) {
+  let t = 0;
+  if (day.hotel) t += day.hotel.cost || 0;
+  (day.flights || []).forEach(f => t += f.cost || 0);
+  (day.activities || []).forEach(a => t += a.cost || 0);
+  return t;
+}
+
+function calcCityTotal(id) {
+  return (state[id] || []).reduce((s, d) => s + calcDayTotal(d), 0);
+}
+
+function calcTotal() {
+  return CITIES.reduce((s, c) => s + calcCityTotal(c.id), 0);
+}
+
+// ── BUDGET STRIP ──────────────────────────────────────────
+function updateBudget() {
+  const spent = calcTotal();
+  const pct = Math.min(Math.round((spent / TOTAL_BUDGET) * 100), 100);
+  document.getElementById('b-total').textContent = fmt(TOTAL_BUDGET);
+  document.getElementById('b-spent').textContent = fmt(spent);
+  document.getElementById('b-remain').textContent = fmt(TOTAL_BUDGET - spent) + (spent > TOTAL_BUDGET ? ' over budget!' : ' remaining');
+  document.getElementById('b-pct').textContent = pct + '%';
+  const bar = document.getElementById('b-bar');
+  bar.style.width = pct + '%';
+  bar.className = 'progress-fill' + (spent > TOTAL_BUDGET ? ' over' : '');
+}
+
+// ── ROUTE BAR ─────────────────────────────────────────────
+function renderRouteBar() {
+  const wrap = document.getElementById('route-bar');
+  wrap.innerHTML = CITIES.map((c, i) => {
+    const arrow = i < CITIES.length - 1 ? '<span class="route-arrow">›</span>' : '';
+    const active = openCities[c.id];
+    return `<span class="route-city${active ? ' active' : ''}" style="${active ? 'background:' + c.color + ';' : ''}" onclick="scrollToCity('${c.id}')">${c.name}</span>${arrow}`;
+  }).join('');
+}
+
+function scrollToCity(id) {
+  openCities[id] = true;
+  renderAll();
+  setTimeout(() => {
+    const el = document.getElementById('city-' + id);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 60);
+}
+
+// ── RENDER ────────────────────────────────────────────────
+function renderDayDetail(cityId, di) {
+  const day = state[cityId][di];
+  let html = '<div class="day-detail">';
+
+  if (day.flights && day.flights.length) {
+    html += '<div class="detail-section"><div class="detail-label">Flights</div>';
+    day.flights.forEach((f, fi) => {
+      html += `<div class="detail-item">
+        <span class="detail-item-name">✈ ${esc(f.name)}${f.note ? `<br><span class="detail-item-note">${esc(f.note)}</span>` : ''}</span>
+        <span class="detail-item-cost${isViewer ? ' readonly' : ''}" onclick="${isViewer ? '' : `editCost('${cityId}',${di},'flight',${fi})`}">${fmt(f.cost)}</span>
+      </div>`;
+    });
+    html += '</div>';
+  }
+
+  if (day.hotel) {
+    html += `<div class="detail-section"><div class="detail-label">Hotel (per night)</div>
+      <div class="detail-item">
+        <span class="detail-item-name">🏨 ${esc(day.hotel.name)}</span>
+        <span class="detail-item-cost${isViewer ? ' readonly' : ''}" onclick="${isViewer ? '' : `editCost('${cityId}',${di},'hotel',0)`}">${fmt(day.hotel.cost)}/night</span>
+      </div></div>`;
+  }
+
+  html += '<div class="detail-section"><div class="detail-label">Activities</div>';
+  (day.activities || []).forEach((a, ai) => {
+    html += `<div class="detail-item">
+      <span class="detail-item-name">${esc(a.name)}</span>
+      <span class="detail-item-cost${isViewer ? ' readonly' : ''}" onclick="${isViewer ? '' : `editCost('${cityId}',${di},'activity',${ai})`}">${a.cost === 0 ? 'Free' : fmt(a.cost)}</span>
+    </div>`;
+  });
+  if (!isViewer) html += `<button class="add-item-btn" onclick="openAddActivity('${cityId}',${di})">+ add activity</button>`;
+  html += '</div>';
+
+  html += `<div class="detail-section"><div class="detail-label">Notes</div>
+    <textarea class="note-area" ${isViewer ? 'readonly' : ''} onchange="saveNote('${cityId}',${di},this.value)" placeholder="Add notes, confirmation numbers…">${esc(day.notes || '')}</textarea>
+  </div>`;
+
+  html += '</div>';
+  return html;
+}
+
+function renderCity(city, idx) {
+  const open = openCities[city.id];
+  const days = state[city.id] || [];
+  const cityTotal = calcCityTotal(city.id);
+
+  let html = `<div class="city-card" id="city-${city.id}">
+    <div class="city-header" onclick="toggleCity('${city.id}')">
+      <div class="city-color-bar" style="background:${city.color}"></div>
+      <div class="city-header-info">
+        <div class="city-header-name">${city.name}</div>
+        <div class="city-header-meta">${days.length} day${days.length !== 1 ? 's' : ''}</div>
+      </div>
+      <div class="city-header-right">
+        <span class="city-total">${fmt(cityTotal)}</span>
+        <span class="city-chevron${open ? ' open' : ''}">›</span>
+      </div>
+    </div>
+    <div class="city-body${open ? ' open' : ''}">`;
+
+  if (idx > 0) {
+    const prev = CITIES[idx - 1];
+    if (prev.transport_out) {
+      html += `<div class="transport-row"><span class="transport-icon">${prev.transport_out.type === 'train' ? '🚄' : '✈'}</span><span>${prev.transport_out.label}</span></div>`;
+    }
+  }
+
+  days.forEach((day, di) => {
+    const dayOpen = openDays[city.id + '_' + di];
+    html += `<div class="day-row">
+      <div class="day-header" onclick="toggleDay('${city.id}',${di})">
+        <span class="day-date">${esc(day.date)}</span>
+        <span class="day-label">${esc(day.label)}</span>
+        <span class="day-cost">${fmt(calcDayTotal(day))}</span>`;
+
+    if (!isViewer) {
+      html += `<div class="day-actions" onclick="event.stopPropagation()">
+        <button class="day-action-btn" title="Move up" onclick="moveDayUp('${city.id}',${di})" ${di === 0 ? 'disabled' : ''}>↑</button>
+        <button class="day-action-btn" title="Move down" onclick="moveDayDown('${city.id}',${di})" ${di === days.length - 1 ? 'disabled' : ''}>↓</button>
+        <button class="day-action-btn del" title="Remove day" onclick="removeDay('${city.id}',${di})">×</button>
+      </div>`;
+    }
+
+    html += `<span class="day-chevron${dayOpen ? ' open' : ''}">›</span>
+      </div>
+      ${dayOpen ? renderDayDetail(city.id, di) : ''}
+    </div>`;
+  });
+
+  if (!isViewer) {
+    html += `<div class="city-footer"><button class="add-day-btn" onclick="openAddDay('${city.id}')">+ add day</button></div>`;
+  }
+
+  html += '</div></div>';
+  return html;
+}
+
+function renderAll() {
+  updateBudget();
+  renderRouteBar();
+  let html = '';
+  CITIES.forEach((c, i) => html += renderCity(c, i));
+  document.getElementById('cities-container').innerHTML = html;
+}
+
+// ── INTERACTIONS ──────────────────────────────────────────
+function toggleCity(id) { openCities[id] = !openCities[id]; renderAll(); }
+function toggleDay(cityId, di) { const k = cityId + '_' + di; openDays[k] = !openDays[k]; renderAll(); }
+
+function moveDayUp(cityId, di) {
+  const d = state[cityId]; if (di === 0) return;
+  [d[di-1], d[di]] = [d[di], d[di-1]]; scheduleSave(); renderAll();
+}
+function moveDayDown(cityId, di) {
+  const d = state[cityId]; if (di >= d.length - 1) return;
+  [d[di], d[di+1]] = [d[di+1], d[di]]; scheduleSave(); renderAll();
+}
+function removeDay(cityId, di) {
+  const days = state[cityId];
+  if (days.length <= 1) { alert('A city must have at least one day.'); return; }
+  if (!confirm(`Remove "${days[di].label}"?`)) return;
+  days.splice(di, 1);
+  scheduleSave(); renderAll();
+}
+
+function editCost(cityId, dayIdx, type, itemIdx) {
+  const day = state[cityId][dayIdx];
+  let current = 0;
+  if (type === 'hotel') current = day.hotel.cost;
+  else if (type === 'flight') current = day.flights[itemIdx].cost;
+  else if (type === 'activity') current = day.activities[itemIdx].cost;
+
+  openModal('Edit cost', [
+    { id: 'cost', label: 'Amount (USD)', type: 'number', value: current, placeholder: '0' }
+  ], () => {
+    const n = parseFloat(document.getElementById('m-cost').value);
+    if (isNaN(n)) return false;
+    if (type === 'hotel') day.hotel.cost = n;
+    else if (type === 'flight') day.flights[itemIdx].cost = n;
+    else if (type === 'activity') day.activities[itemIdx].cost = n;
+    scheduleSave(); renderAll();
+  }, 'Save');
+}
+
+function openAddActivity(cityId, dayIdx) {
+  openModal('Add activity', [
+    { id: 'name', label: 'Activity name', type: 'text', value: '', placeholder: 'e.g. Museum visit' },
+    { id: 'cost', label: 'Cost (USD)', type: 'number', value: 0, placeholder: '0' }
+  ], () => {
+    const name = document.getElementById('m-name').value.trim();
+    if (!name) return false;
+    const cost = parseFloat(document.getElementById('m-cost').value) || 0;
+    state[cityId][dayIdx].activities.push({ name, cost });
+    scheduleSave(); renderAll();
+  }, 'Add activity');
+}
+
+function openAddDay(cityId) {
+  const days = state[cityId];
+  const lastHotel = days.length ? days[days.length - 1].hotel : null;
+  openModal('Add day', [
+    { id: 'date', label: 'Date (e.g. Aug 22)', type: 'text', value: '', placeholder: 'Aug 22' },
+    { id: 'label', label: 'Day label', type: 'text', value: '', placeholder: 'e.g. Free day / Beach' },
+    { id: 'hotel', label: 'Hotel name', type: 'text', value: lastHotel ? lastHotel.name : '', placeholder: 'Hotel name' },
+    { id: 'hotelcost', label: 'Hotel cost/night (USD)', type: 'number', value: lastHotel ? lastHotel.cost : 0, placeholder: '0' }
+  ], () => {
+    const label = document.getElementById('m-label').value.trim();
+    if (!label) return false;
+    const date = document.getElementById('m-date').value.trim() || 'New day';
+    const hotelName = document.getElementById('m-hotel').value.trim() || 'Hotel';
+    const hotelCost = parseFloat(document.getElementById('m-hotelcost').value) || 0;
+    state[cityId].push({ id: cityId + '_' + Date.now(), date, label, hotel: { name: hotelName, cost: hotelCost }, activities: [], notes: '' });
+    openDays[cityId + '_' + (state[cityId].length - 1)] = true;
+    scheduleSave(); renderAll();
+  }, 'Add day');
+}
+
+function saveNote(cityId, dayIdx, val) {
+  state[cityId][dayIdx].notes = val; scheduleSave();
+}
+
+// ── MODAL ─────────────────────────────────────────────────
+function openModal(title, fields, onConfirm, confirmLabel) {
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-confirm').textContent = confirmLabel || 'Confirm';
+  const fieldsEl = document.getElementById('modal-fields');
+  fieldsEl.innerHTML = fields.map(f => `
+    <div class="modal-field">
+      <label class="modal-label" for="m-${f.id}">${f.label}</label>
+      <input class="modal-input" id="m-${f.id}" type="${f.type}" value="${esc(String(f.value))}" placeholder="${esc(f.placeholder)}" />
+    </div>`).join('');
+  modalCallback = onConfirm;
+  document.getElementById('modal').classList.add('open');
+  setTimeout(() => { const first = fieldsEl.querySelector('input'); if (first) first.focus(); }, 250);
+}
+
+function closeModal(e) {
+  if (e && e.target !== document.getElementById('modal')) return;
+  document.getElementById('modal').classList.remove('open');
+  modalCallback = null;
+}
+
+function confirmModal() {
+  if (modalCallback) { const ok = modalCallback(); if (ok === false) return; }
+  document.getElementById('modal').classList.remove('open');
+  modalCallback = null;
+}
+
+// ── SHARE ─────────────────────────────────────────────────
+function copyLink() {
+  const url = window.location.href;
+  navigator.clipboard.writeText(url).then(() => {
+    const btn = document.querySelector('.copy-btn');
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy link', 2000);
+  }).catch(() => alert('Share this URL:\n\n' + url));
+}
+
+// ── UTILS ─────────────────────────────────────────────────
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── INIT ──────────────────────────────────────────────────
+async function init() {
+  isViewer = new URLSearchParams(window.location.search).get('view') === '1';
+
+  if (isViewer) {
+    document.getElementById('viewer-bar').style.display = 'block';
+    document.getElementById('sync-pill').textContent = 'Live view';
+    document.getElementById('share-box').style.display = 'none';
+  }
+
+  document.getElementById('share-url').textContent = window.location.href;
+
+  await openDB();
+  await loadState();
+  renderAll();
+
+  // Broadcast saves to other open tabs
+  if (!isViewer && bc) {
+    const origSave = saveState;
+    window._saveState = async function() {
+      await origSave.call(this);
+      bc.postMessage('updated');
+    };
+  }
+}
+
+init();
+</script>
+</body>
+</html>
